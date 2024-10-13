@@ -35,7 +35,7 @@ const ViewTravelStory = ({ storyInfo, onClose, onEditClick, onDeleteClick }) => 
                         </div>
                     </div>
 
-                    <div className="w-full h-72 rounded-md overflow-hidden">
+                    <div className="w-full h-80 rounded-md overflow-hidden">
                         <img className="w-full h-full object-cover hover:scale-[1.02] transition duration-300" src={storyInfo && storyInfo.imageUrl} alt="" />
                     </div>
 

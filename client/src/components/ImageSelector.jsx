@@ -20,7 +20,7 @@ const ImageSelector = ({ image, setImage, handleImageDelete }) => {
 
     const handleImageRemove = () => {
         setImage(null);
-
+        handleImageDelete();
     }
 
     useEffect(() => {

@@ -20,9 +20,29 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
 
     // Delete story image and update the story
     const handleImageDelete = async () => {
-        
-    }
+        // deleteing the img
+        const deleteImg = await axios.delete(API_URL + "/story/delete-image", {
+            params: {
+                imageUrl: storyInfo.imageUrl,
+            },
+        }, { withCredentials: true })
 
+        if (deleteImg.data) {
+            const storyId = storyInfo._id;
+
+            const postData = {
+                title,
+                story,
+                visitedLocation,
+                visitedDate: moment().valueOf(),
+                imageUrl: "",
+            };
+
+            // updating story
+            const response = await axios.post(API_URL + "/story/edit-story/" + storyId, postData, { withCredentials: true });
+            setStoryImage(null);    
+        }
+    }
 
     const addNewTravelStory = async () => {
         try {
@@ -89,7 +109,7 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
         }
         catch (error) {
             console.error("Error adding new travel story:", error);
-            toast.error(error.response.data.message);
+            toast.error(error?.message);
         }
     }
 

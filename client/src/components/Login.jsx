@@ -1,15 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/constants";
+import { useAuth } from "../utils/AuthContext";
 
 const Login = () => {
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ error, setError ] = useState("");
-
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -18,26 +19,11 @@ const Login = () => {
             return;
         }
         setError("");
-
-        // LOGIN API CALL
         try {
-            const response = await axios.post(API_URL + "/user/login", { 
-                email, password
-            }, { withCredentials: true });
-
-            // handle successful login response
-            if (response.data && response.data.token) {
-                navigate("/");
-            }
-        }
-        catch(error) {
-            console.log(error);
-            if(error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message); 
-            }
-            else {
-                setError("An error occurred. Please try again.");
-            }
+            await login(email, password, setError);
+            navigate("/")
+        } catch(err) {
+            console.log(err);
         }
     }
 

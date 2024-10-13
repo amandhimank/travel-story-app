@@ -2,7 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
 import { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../utils/constants";
+import { API_URL } from "../utils/constants";import { useAuth } from "../utils/AuthContext";
+;
 axios.defaults.withCredentials = true;
 
 
@@ -11,7 +12,7 @@ const Signup = () => {
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ error, setError ] = useState("");
-
+    const { signup } = useAuth();
     const navigate = useNavigate();
 
     const handleSignup = async (e) => {
@@ -22,27 +23,12 @@ const Signup = () => {
         }
         setError(""); 
 
-        // LOGIN API CALL
         try {
-            const response = await axios.post(API_URL + "/user/create-account", { 
-                "fullname": name, 
-                email, 
-                password 
-            }, { withCredentials: true });
-
-            // handle successful signup response
-            if (response.data && response.data.token) {
-                navigate("/");
-            }
-        }
-        catch(error) {
-            console.log(error);
-            if(error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message); 
-            }
-            else {
-                setError("An error occurred. Please try again.");
-            }
+            await signup(name, email, password, setError);
+            navigate("/")
+        } catch (err) {
+            console.log(err);
+            
         }
     }
 

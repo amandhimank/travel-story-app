@@ -90,4 +90,19 @@ const logout = async (req, res) => {
     }
 }
 
-module.exports = { createAccount, login, getUser, logout };
+const checkAuth = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const user = await User.findById(userId);
+        if(!user) {
+            res.status(404).json({ message: "User not found", success: false });
+        }
+        return res.status(200).json({ success: true, user });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Internal Server Error", success: false })
+        
+    }
+}
+
+module.exports = { createAccount, login, getUser, logout, checkAuth };
