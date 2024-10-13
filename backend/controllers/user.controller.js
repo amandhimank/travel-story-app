@@ -28,7 +28,7 @@ const createAccount = async (req, res) => {
         }
 
         // generating the token
-        const token = generateToken(payload);
+        const token = generateToken(res, payload);
 
         res.status(200).json({ message: "User created successfully", user: response, token, success: true });
     }
@@ -38,7 +38,7 @@ const createAccount = async (req, res) => {
     }
 }
 
-const login =async (req, res) => {
+const login = async (req, res) => {
     const { email, password } = req.body;
     if(!email || !password){
         return res.status(400).json({ message: "All fields are required" });
@@ -57,7 +57,7 @@ const login =async (req, res) => {
         }
 
         // generating the token
-        const token = generateToken(payload);
+        const token = generateToken(res, payload);
 
         res.status(200).json({ message: "User logged in successfully", user, token, success: true });
     }
@@ -79,4 +79,15 @@ const getUser = async (req, res) => {
     }
 }
 
-module.exports = { createAccount, login, getUser };
+const logout = async (req, res) => {
+    try {
+        res.clearCookie("token");
+        res.status(200).json({ message: "User logged out successfully", success: true });
+    }
+    catch(error) {
+        console.log(error);
+        res.status(500).json({error: "Internal server error", success: false });
+    }
+}
+
+module.exports = { createAccount, login, getUser, logout };

@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    font-family: "Gilroy";
+}
+
+/* custom scroll bar styles */
+.scrollbar::-webkit-scrollbar{
+    width: 3px;
+    height: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb{
+    background-color: #057c8e;
+    border-radius: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-track{
+    background-color: rgb(172, 201, 229);
+}
+
+.model-box{
+    @apply w-[80vw] md:w-[40%] h-[80vh] bg-white rounded-l-lg mx-auto mt-14 p-5 overflow-y-scroll z-50 scrollbar;
+}

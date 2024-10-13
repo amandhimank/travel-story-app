@@ -2,13 +2,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const jwtAuthMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    console.log("auth middlware");
-    if(!authHeader) {
-        return res.status(403).json({ message: "Unauthorized" });
-    }
-    const token = authHeader.split(' ')[1];
-
+    const token = req.cookies.token;
+    
     try { 
         if(!token) {
             return res.status(403).json({ message: "Unauthorized! Token not found" });
@@ -28,8 +23,17 @@ const jwtAuthMiddleware = (req, res, next) => {
     }
 }
 
-const generateToken = (payload) => {
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "4h" })
+const generateToken = (res, payload) => {
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "strict",
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        path:"/"
+    })
+
+    return token;
 }
 
 module.exports = { generateToken, jwtAuthMiddleware };

@@ -14,7 +14,13 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }    
+    },
+    storyId: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "TravelStory"
+        }
+    ]  
 }, {timestamps: true});
 
 userSchema.pre('save', async function() {

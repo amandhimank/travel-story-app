@@ -1,9 +1,9 @@
-const { parse } = require("dotenv");
 const TravelStory = require("../models/travelStory.model");
 const path = require("path");
 const fs = require("fs");
+const User = require("../models/user.model");
 
-
+// To add a new story
 const addStory = async (req, res) => {
     const { title, story, visitedLocation, imageUrl, visitedDate } = req.body;
     const userId = req.user.id;
@@ -17,9 +17,9 @@ const addStory = async (req, res) => {
     const parsedVisitedData = new Date(parseInt(visitedDate));
 
     try {
-        const travelstory = await TravelStory.findOne({ title });
+        const travelstory = await TravelStory.findOne({ title, userId });
         if(travelstory) {
-            res.status(403).json({ message: "title already exists", success: false });
+            return res.status(403).json({ message: "title already exists", success: false });
         }
 
         // create a new story
@@ -34,7 +34,8 @@ const addStory = async (req, res) => {
 
         // save it
         const response = await newStory.save();
-        res.status(200).json({ message: "Story created successfully", success: true, story: response });
+        const user = await User.findByIdAndUpdate(userId, { $push: { storyId: response._id } });
+        res.status(200).json({ message: "Story created successfully", success: true, story: response, user });
     }
     catch(error) {
         console.log(error);
@@ -92,22 +93,22 @@ const deleteImage = async (req, res) => {
         if(fs.existsSync(filePath)) {
             // Delete the file from uploads folder
             fs.unlinkSync(filePath);
-            res.status(200).json({ message: "Image deleted successfully", success: true });
+            return res.status(200).json({ message: "Image deleted successfully", success: true });
         }
         else {
-            res.status(404).json({ message: "Image not found", success: false });
+            return res.status(404).json({ message: "Image not found", success: false });
         }
     }
     catch(error) {
         console.log(error);
-        res.status(500).json({ error: "Internal server error", success: false });
+        return res.status(500).json({ error: "Internal server error", success: false });
     }
 };
 
 // Edit travel story
 const editStory = async (req, res) => {
     const { id } = req.params;
-    const { title, story, visitedLocation, imageUrl,visitedDate } = req.body;
+    const { title, story, visitedLocation, imageUrl, visitedDate } = req.body;
     const userId = req.user.id;
 
     // validate required fields
@@ -134,11 +135,11 @@ const editStory = async (req, res) => {
         travelStory.visitedDate = parsedVisitedData;
 
         await travelStory.save();
-        res.status(200).json({ message: "Story updated successfully", success: true, story: travelStory });
+        return res.status(200).json({ message: "Story updated successfully", success: true, story: travelStory });
     }
     catch(error) {
         console.log(error);
-        res.status(500).json({ error: "Internal server error", success: false });
+        return res.status(500).json({ error: "Internal server error", success: false });
     }
 };
 
@@ -195,11 +196,11 @@ const updateIsFavourite = async (req, res) => {
         // Update the isFavourite field
         travelStory.isFavourite = isFavourite;
         await travelStory.save();
-        res.status(200).json({ message: "Favourite updated successfully", success: true, story: travelStory });
+        return res.status(200).json({ message: "Favourite updated successfully", success: true, story: travelStory });
     }
     catch(error) {
         console.log(error);
-        res.status(500).json({ error: "Internal server error", success: false });
+        return res.status(500).json({ error: "Internal server error", success: false });
     }
 }
 
@@ -247,11 +248,11 @@ const filterStoriesByDateRange = async (req, res) => {
             visitedDate: { $gte: start, $lte: end },
         }).sort({ isFavourite: -1 });
 
-        res.status(200).json({ stories: filteredStories, success: true });
+        return res.status(200).json({ stories: filteredStories, success: true });
     }
     catch(error) {
         console.log(error);
-        res.status(500).json({ error: "Internal server error", success: false });
+        return res.status(500).json({ error: "Internal server error", success: false });
     }
 };
 

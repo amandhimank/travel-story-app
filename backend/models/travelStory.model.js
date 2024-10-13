@@ -25,7 +25,7 @@ const travelStorySchema = new mongoose.Schema({
     },
     imageUrl: {
         type: String,
-        default: "https://img.freepik.com/free-photo/open-book-with-fairytale-scene_52683-107844.jpg?t=st=1727929313~exp=1727932913~hmac=895a409d65a3b56a3e23a99467202235d879351956ccdd7a6bfa2d5cf7934826&w=996"
+        default: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     visitedDate: {
         type: Date,
