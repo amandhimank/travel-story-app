@@ -24,6 +24,7 @@ const Login = () => {
             navigate("/")
         } catch(err) {
             console.log(err);
+            setError(err?.response?.data?.message)
         }
     }
 
@@ -41,7 +42,7 @@ const Login = () => {
                         {error && <h1 className="text-lg text-red-500 font-semibold">{error}</h1>}
                         <button type="submit" className="w-full bg-blue-600 text-white text-xl rounded mt-3 mb-6 py-3 font-bold">LOGIN</button>
                     </form>
-                    {/* <h1 className="text-xl text-white font-semibold">New User? <Link to="/signup" className="text-blue-600 hover:underline">Signup</Link></h1> */}
+                    
                     <h1 className="text-xl text-white font-semibold text-center">or</h1>
 
                     <button className="w-full bg-white text-blue-600 text-xl rounded mt-3 mb-6 py-3 font-bold"><Link to="/signup">CREATE ACCOUNT</Link></button>
