@@ -18,13 +18,11 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// serve static files from the uploads and assets directort
+const _dirname = path.resolve();
+
+// serve static files from the uploads and assets directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
-
-app.get('/', (req, res) => {
-    res.status(200).json({message: 'Hello World'});
-})
 
 // import routers
 const userRoutes = require('./routes/user.route');
@@ -33,6 +31,11 @@ const storyRoutes = require('./routes/travel.route');
 // use routes
 app.use("/user", userRoutes);
 app.use("/story", storyRoutes);
+
+app.use(express.static(path.join(_dirname, "/client/dist")))
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(_dirname, "client", "dist", "index.html"));
+})
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
