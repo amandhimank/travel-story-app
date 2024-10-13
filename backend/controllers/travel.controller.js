@@ -56,20 +56,35 @@ const getAllStories = async (req, res) => {
 };
 
 // Image upload 
+// const imageUpload = async (req, res) => {
+//     try {
+//         if(!req.file) {
+//             res.status(400).json({ message: "No file uploaded", success: false });
+//         }
+
+//         const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+//         res.status(200).json({ message: "Image uploaded successfully", success: true, imageUrl });
+//     }
+//     catch(error) {
+//         console.log(error);
+//         res.status(500).json({ error: "Internal server error", success: false });
+//     }
+// };
 const imageUpload = async (req, res) => {
     try {
-        if(!req.file) {
-            res.status(400).json({ message: "No file uploaded", success: false });
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded", success: false });
         }
 
-        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        // Cloudinary will return the URL for the uploaded image
+        const imageUrl = req.file.path;
         res.status(200).json({ message: "Image uploaded successfully", success: true, imageUrl });
-    }
-    catch(error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Internal server error", success: false });
     }
 };
+
 
 // Delete image
 const deleteImage = async (req, res) => {
