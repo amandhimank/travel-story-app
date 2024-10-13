@@ -45,7 +45,6 @@ const addStory = async (req, res) => {
 
 const getAllStories = async (req, res) => {
     const userId = req.user.id;
-    console.log(userId);
     try {
         const stories = await TravelStory.find({ userId: userId }).sort({ isFavourite: -1 });
         res.status(200).json({ message: "Stories fetched successfully", success: true, stories });
@@ -83,11 +82,9 @@ const deleteImage = async (req, res) => {
     try {
         // extract filename from the image url
         const filename = path.basename(imageUrl);
-        console.log(filename);
 
         // Define the file path
         const filePath = path.join(__dirname, ".." , "uploads", filename);
-        console.log(filePath);
 
         // Check if the file exists
         if(fs.existsSync(filePath)) {
@@ -225,7 +222,6 @@ const searchStories = async (req, res) => {
                 { visitedLocation: { $regex: searchQuery, $options: "i" } },
             ],
         }).sort({ isFavourite: -1 });
-        console.log(searchResults);
 
         res.status(200).json({ stories: searchResults, success: true });
     }

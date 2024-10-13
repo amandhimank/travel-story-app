@@ -114,8 +114,6 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
     }
 
     const handleAddOrUpdateStory = () => {
-        console.log("Input Data:", {title, story, storyImage, visitedDate, visitedLocation});
-
         if(!title) {
             setError("Title is required");
             return;

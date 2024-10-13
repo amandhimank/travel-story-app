@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         const response = await axios.get(API_URL + "/user/logout", { withCredentials: true });
-        console.log(response);
         if(response && response.data.success) {
             setIsAuthenticated(false);
         }
