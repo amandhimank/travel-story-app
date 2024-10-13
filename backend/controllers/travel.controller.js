@@ -157,6 +157,9 @@ const deleteStory = async (req, res) => {
 
         // Delete the story
         await TravelStory.deleteOne({ _id: id, userId: userId });
+        const user = await User.findById(userId);
+        user.storyId = user.storyId.filter((item) => item.toString !== id)
+        await user.save();
 
         // Extract the filename from the imageUrl
         const imageUrl = travelStory.imageUrl;
