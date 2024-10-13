@@ -2,6 +2,16 @@ const TravelStory = require("../models/travelStory.model");
 const path = require("path");
 const fs = require("fs");
 const User = require("../models/user.model");
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 // To add a new story
 const addStory = async (req, res) => {
@@ -55,21 +65,6 @@ const getAllStories = async (req, res) => {
     }
 };
 
-// Image upload 
-// const imageUpload = async (req, res) => {
-//     try {
-//         if(!req.file) {
-//             res.status(400).json({ message: "No file uploaded", success: false });
-//         }
-
-//         const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
-//         res.status(200).json({ message: "Image uploaded successfully", success: true, imageUrl });
-//     }
-//     catch(error) {
-//         console.log(error);
-//         res.status(500).json({ error: "Internal server error", success: false });
-//     }
-// };
 const imageUpload = async (req, res) => {
     try {
         if (!req.file) {
@@ -87,31 +82,54 @@ const imageUpload = async (req, res) => {
 
 
 // Delete image
+// const deleteImage = async (req, res) => {
+//     const { imageUrl } = req.query;
+
+//     if(!imageUrl) {
+//         return res.status(400).json({ message: "Image URL is required", success: false });
+//     }
+
+//     try {
+//         // extract filename from the image url
+//         const filename = path.basename(imageUrl);
+
+//         // Define the file path
+//         const filePath = path.join(__dirname, ".." , "uploads", filename);
+
+//         // Check if the file exists
+//         if(fs.existsSync(filePath)) {
+//             // Delete the file from uploads folder
+//             fs.unlinkSync(filePath);
+//             return res.status(200).json({ message: "Image deleted successfully", success: true });
+//         }
+//         else {
+//             return res.status(404).json({ message: "Image not found", success: false });
+//         }
+//     }
+//     catch(error) {
+//         console.log(error);
+//         return res.status(500).json({ error: "Internal server error", success: false });
+//     }
+// };
 const deleteImage = async (req, res) => {
     const { imageUrl } = req.query;
 
-    if(!imageUrl) {
+    if (!imageUrl) {
         return res.status(400).json({ message: "Image URL is required", success: false });
     }
 
     try {
-        // extract filename from the image url
-        const filename = path.basename(imageUrl);
+        // Extract the public ID of the image from the imageUrl
+        const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID
 
-        // Define the file path
-        const filePath = path.join(__dirname, ".." , "uploads", filename);
-
-        // Check if the file exists
-        if(fs.existsSync(filePath)) {
-            // Delete the file from uploads folder
-            fs.unlinkSync(filePath);
-            return res.status(200).json({ message: "Image deleted successfully", success: true });
-        }
-        else {
-            return res.status(404).json({ message: "Image not found", success: false });
-        }
-    }
-    catch(error) {
+        // Delete the image from Cloudinary
+        cloudinary.uploader.destroy(publicId, (error, result) => {
+            if (error) {
+                return res.status(500).json({ message: "Failed to delete image", success: false, error });
+            }
+            return res.status(200).json({ message: "Image deleted successfully", success: true, result });
+        });
+    } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Internal server error", success: false });
     }
@@ -156,6 +174,44 @@ const editStory = async (req, res) => {
 };
 
 // Delete travel story
+// const deleteStory = async (req, res) => {
+//     const { id } = req.params;
+//     const userId = req.user.id;
+
+//     try {
+//         // Find the story by id and ensure it belongs to the authenticated user
+//         const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
+//         if(!travelStory) {
+//             return res.status(404).json({ message: "Story not found", success: false });
+//         }
+
+//         // Delete the story
+//         await TravelStory.deleteOne({ _id: id, userId: userId });
+//         const user = await User.findById(userId);
+//         user.storyId = user.storyId.filter((item) => item.toString !== id)
+//         await user.save();
+
+//         // Extract the filename from the imageUrl
+//         const imageUrl = travelStory.imageUrl;
+//         const filename = path.basename(imageUrl);
+
+//         // Define the file path
+//         const filepath = path.join(__dirname, "..", "uploads", filename);
+
+//         // Delete the image from the uploads folder
+//         fs.unlinkSync(filepath, (err) => {
+//             if(err) {
+//                 console.error("Failed to delete image:", err);
+//             }
+//         })
+
+//         res.status(200).json({ message: "Story deleted successfully", success: true });
+//     }
+//     catch(error) {
+//         console.log(error);
+//         res.status(500).json({ error: "Internal server error", success: false });
+//     }
+// };
 const deleteStory = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
@@ -163,33 +219,29 @@ const deleteStory = async (req, res) => {
     try {
         // Find the story by id and ensure it belongs to the authenticated user
         const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
-        if(!travelStory) {
+        if (!travelStory) {
             return res.status(404).json({ message: "Story not found", success: false });
         }
 
         // Delete the story
         await TravelStory.deleteOne({ _id: id, userId: userId });
         const user = await User.findById(userId);
-        user.storyId = user.storyId.filter((item) => item.toString !== id)
+        user.storyId = user.storyId.filter((item) => item.toString() !== id);
         await user.save();
 
-        // Extract the filename from the imageUrl
+        // Extract the public ID of the image from the imageUrl
         const imageUrl = travelStory.imageUrl;
-        const filename = path.basename(imageUrl);
+        const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID
 
-        // Define the file path
-        const filepath = path.join(__dirname, "..", "uploads", filename);
-
-        // Delete the image from the uploads folder
-        fs.unlinkSync(filepath, (err) => {
-            if(err) {
-                console.error("Failed to delete image:", err);
+        // Delete the image from Cloudinary
+        cloudinary.uploader.destroy(publicId, (error, result) => {
+            if (error) {
+                console.error("Failed to delete image from Cloudinary:", error);
             }
-        })
+        });
 
         res.status(200).json({ message: "Story deleted successfully", success: true });
-    }
-    catch(error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Internal server error", success: false });
     }
